@@ -4,7 +4,7 @@ Perceptual diffing suite for [Nightmare](github.com/segmentio/nightmare), built 
 ## Getting Started
 For background on perceptual diffing and why you would use niffy, check out [this blog post](https://segment.com/blog/perceptual-diffing-with-niffy).
 
-You can also look at [`test/index.js`](https://github.com/segmentio/niffy/blob/master/test/index.js) as an example for how to use Niffy.
+You can also look at [`test/index.js`](https://github.com/segmentio/niffy/blob/master/test/index.js) as an example for how to use Niffy. To run the example test just do `make test` after cloning this repo.
 
 ## Reference
 Niffy is built on [Nightmare](github.com/segmentio/nightmare) and used in combination with [Mocha](https://mochajs.org/). You'll also need to read and use both of those library's APIs to use niffy effectively.
