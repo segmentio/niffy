@@ -1,2 +1,2 @@
 # niffy
-Perceptual Diffing built on Nightmare
+Perceptual diffing built on Nightmare.
