@@ -7,7 +7,7 @@ var Niffy = require('..');
 describe('Google', function () {
   var niffy
 
-  beforeEach(function () {
+  before(function () {
     niffy = new Niffy(
       'https://google.com',
       'https://google.co.jp',
@@ -23,12 +23,7 @@ describe('Google', function () {
     yield niffy.test('/services')
   })
 
-  it('should pass', function* () {
-    niffy = new Niffy('https://google.com', 'https://google.com')
-    yield niffy.test('/webhp')
-  })
-
-  afterEach(function* () {
+  after(function* () {
     yield niffy.end()
   })
 })
