@@ -25,12 +25,13 @@ module.exports = Niffy;
 
 function Niffy(base, test, options) {
   if (!(this instanceof Niffy)) return new Niffy(base, test, options);
-  options = defaults(options, { show: false, width: 1400, height: 1000 });
+  options = defaults(options, { show: false, width: 1400, height: 1000, threshold: .2 });
   this.nightmare = new Nightmare(options);
   this.basehost = base;
   this.testhost = test;
   this.starts = {};
   this.profiles = {};
+  this.errorThreshold = options.threshold;
 }
 
 /**
@@ -42,8 +43,12 @@ function Niffy(base, test, options) {
 
 Niffy.prototype.test = function* (path, fn) {
   var diff = yield this.capture(path, fn);
-  var failMessage = sprintf('open %s', diff.diffFilepath);
-  diff.percentage.should.equal(0, failMessage);
+  var pct = '' + Math.floor(diff.percentage * 10000) / 10000 + '%';
+  var failMessage = sprintf('%s different, open %s', pct, diff.diffFilepath);
+  var absolutePct = Math.abs(diff.percentage);
+  if (diff.percentage > this.errorThreshold) {
+    throw new Error(failMessage);
+  }
 };
 
 /**
@@ -178,7 +183,7 @@ Niffy.prototype.stopProfile = function (name) {
  */
 
 function imgfilepath(name, path) {
-  var filepath = '/tmp/niffy'+path;
+  var filepath = '/tmp/niffy' + path;
   if (filepath.slice(-1) !== '/') filepath += '/';
   mkdirp(filepath);
   return (filepath + name + '.png');

@@ -1,0 +1,25 @@
+machine:
+  node:
+    version: 6
+  services:
+    - docker
+
+dependencies:
+  cache_directories:
+     - node_modules
+  pre:
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+    - npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
+  override:
+    - make node_modules
+
+test:
+  override:
+    - echo "tests currently fail on purpose"
+    # - make test
+
+deployment:
+  npm:
+    tag: /v[0-9]+(\.[0-9]+)*/
+        commands:
+      - npm publish

@@ -4,33 +4,31 @@ var debug = require('debug')('niffy:test');
 var should = require('chai').should();
 var Niffy = require('..');
 
-describe('Segment App', function () {
+describe('Google', function () {
+  var niffy
 
-  var basehost = 'https://www.google.com';
-  var testhost = 'https://www.google.co.jp';
-  var niffy;
+  beforeEach(function () {
+    niffy = new Niffy(
+      'https://google.com',
+      'https://google.co.jp',
+      { show: true }
+    )
+  })
 
-  before(function () {
-    niffy = new Niffy(basehost, testhost, { show: true });
-  });
+  it('Homepage', function* () {
+    yield niffy.test('/')
+  })
 
-  after(function* () {
-    yield niffy.end();
-  });
+  it('Services', function* () {
+    yield niffy.test('/services')
+  })
 
-  /**
-   * Logged out.
-   */
+  it('should pass', function* () {
+    niffy = new Niffy('https://google.com', 'https://google.com')
+    yield niffy.test('/webhp')
+  })
 
-  describe('Logged Out', function () {
-
-    it('/', function* () {
-      yield niffy.test('/');
-    });
-
-    it('/news', function* () {
-      yield niffy.test('/news');
-    });
-  });
-
-});
+  afterEach(function* () {
+    yield niffy.end()
+  })
+})
