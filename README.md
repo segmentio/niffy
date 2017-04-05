@@ -1,8 +1,8 @@
-<p align="center"><img alt="mail-a-tron logo" src="http://i.imgur.com/T5j0bk9.png" width="128"></p>
+<p align="center"><img alt="mail-a-tron logo" src="http://i.imgur.com/xv9y0Te.png" width="150"></p>
 <p align="center">
-<strong>Perceptual diffing suite for UIs</strong>
+<strong>Perceptual diffing suite</strong>
 <br>
-on <a href="https://github.com/segmentio/nightmare">Nightmare</a>, built by <a href="https://segment.com">Segment</a>
+built on <a href="https://github.com/segmentio/nightmare">Nightmare</a> by <a href="https://segment.com">Segment</a>
 <br><br>
 <a href="https://circleci.com/gh/segmentio/niffy"><img src="https://circleci.com/gh/segmentio/niffy.svg?style=shield" /></a>
 <a href="https://npmjs.com/package/niffy"><img src="https://img.shields.io/npm/v/niffy.svg" /></a>
