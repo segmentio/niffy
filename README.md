@@ -1,5 +1,12 @@
-# niffy
-Perceptual diffing suite for [Nightmare](https://github.com/segmentio/nightmare), built by [Segment](https://segment.com).
+<p align="center"><img alt="mail-a-tron logo" src="http://i.imgur.com/T5j0bk9.png" width="128"></p>
+<p align="center">
+<strong>Perceptual diffing suite for UIs</strong>
+<br>
+on <a href="https://github.com/segmentio/nightmare">Nightmare</a>, built by <a href="https://segment.com">Segment</a>
+<br><br>
+<a href="https://circleci.com/gh/segmentio/niffy"><img src="https://circleci.com/gh/segmentio/niffy.svg?style=shield" /></a>
+<a href="https://npmjs.com/package/niffy"><img src="https://img.shields.io/npm/v/niffy.svg" /></a>
+</p>
 
 ## Getting Started
 You can look at [`test/index.js`](https://github.com/segmentio/niffy/blob/master/test/index.js) as an example for how to use Niffy. To run the example test just do `make test` after cloning this repo.
