@@ -1,7 +1,7 @@
 GREP ?=.
 
 test: node_modules
-	@rm -rf /tmp/niffy
+	@rm -rf ./screenshots
 	@node_modules/.bin/mocha --harmony --grep "$(GREP)"
 
 node_modules: package.json
