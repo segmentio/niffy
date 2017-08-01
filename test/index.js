@@ -11,7 +11,9 @@ describe('Google', function () {
     niffy = new Niffy(
       'https://google.com',
       'https://google.co.jp',
-      { show: true }
+      {
+        show: true
+      }
     )
   })
 
