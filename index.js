@@ -188,7 +188,7 @@ function imgfilepath(name, path) {
   if (path === '/') {
     folderExtension = 'homepage';
   } else {
-    folderExtension = path.substring(1).replace('/', '-');
+    folderExtension = path.substring(1);
   }
 
   var filepath = './screenshots/' + folderExtension;
