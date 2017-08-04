@@ -183,7 +183,15 @@ Niffy.prototype.stopProfile = function (name) {
  */
 
 function imgfilepath(name, path) {
-  var filepath = '/tmp/niffy' + path;
+
+  var folderExtension;
+  if (path === '/') {
+    folderExtension = 'homepage';
+  } else {
+    folderExtension = path.substring(1);
+  }
+
+  var filepath = './screenshots/' + folderExtension;
   if (filepath.slice(-1) !== '/') filepath += '/';
   mkdirp(filepath);
   return (filepath + name + '.png');
