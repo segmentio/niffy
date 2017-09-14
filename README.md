@@ -18,13 +18,14 @@ Niffy is built on [Nightmare](https://github.com/segmentio/nightmare) and used i
 To create a new Niffy differ:
 
 ```js
-let niffy = new Niffy(basehost, testhost, nightmareOptions);
+let niffy = new Niffy(basehost, testhost, options);
 ```
 
 * `basehost` is the url that is assumed "good"
 * `testhost` is the url that you are comparing to the base
-* `nightmareOptions` can be seen [here in the Nightmare docs](https://github.com/segmentio/nightmare#nightmareoptions)
-  * `.threshold` is the maximum percentage difference for a passing test (default: 0.2%)
+* `options` aside from the few specific niffy options, all nightmare options can be used. They can be seen [here in the Nightmare docs](https://github.com/segmentio/nightmare#nightmareoptions)
+  * `pngPath` is the folder the screenshots will be saved. It defaults to `./niffy`
+  * `threshold` is the maximum percentage difference for a passing test (default: 0.2%)
 
 ### .test(url[, fn])
 This method instructs niffy to go to a `url` (and optionally take additional actions like clicking, typing or checkboxing via the `fn` argument), and test `basehost` vs. `testhost` screenshots for pixel differences, and output the diff-highlight image. Typically you'll use `.test(url, fn)` in the body of a mocha test, like this:
