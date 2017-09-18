@@ -31,7 +31,7 @@ let niffy = new Niffy(basehost, testhost, options, testsFunction);
 
 Niffy supplies these defaults:
 
-```
+```js
 {
   pngPath : ./niffy,
   threshold : 0.2,
@@ -47,7 +47,7 @@ Whatever tests you want to run at each resolution must be wrapped in a function 
 
 ### Mocha example:
 
-```
+```js
 new Niffy(
   'https://google.com',
   'https://google.co.jp',
