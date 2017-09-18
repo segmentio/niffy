@@ -43,7 +43,9 @@ Niffy supplies these defaults:
 
 ## Usage
 
-Whatever tests you want to run at each resolution must be wrapped in a function  and passed as the `testsFunction` parameter of the Niffy constructor.  Example:
+Whatever tests you want to run at each resolution must be wrapped in a function  and passed as the `testsFunction` parameter of the Niffy constructor.
+
+### Mocha example:
 
 ```
 new Niffy(
