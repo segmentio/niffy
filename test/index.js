@@ -1,31 +1,34 @@
 /*jshint esnext:true*/
 
 var debug = require('debug')('niffy:test');
-var should = require('chai').should();
 var Niffy = require('..');
 
 describe('Google', function () {
-  var niffy
-
-  before(function () {
-    niffy = new Niffy(
-      'https://google.com',
-      'https://google.co.jp',
-      {
-        show: true
+    new Niffy(
+    'https://google.com',
+    'https://google.co.jp',
+    {
+      show: true,
+      targets: {
+        small: [100,200],
+        big: [1000,2000]
       }
-    )
-  })
+    }, ( niffy, size ) => {
 
-  it('Homepage', function* () {
-    yield niffy.test('/')
-  })
+    const { label, width, height } = size;
 
-  it('Services', function* () {
-    yield niffy.test('/services')
-  })
+    describe(`${label} : ${width} x ${height}`, () => {
+      it('Homepage', function* () {
+        yield niffy.test('/');
+      })
 
-  after(function* () {
-    yield niffy.end()
-  })
-})
+      it('Services', function* () {
+        yield niffy.test('/services');
+      })
+
+      after(function* () {
+        yield niffy.end();
+      })
+    });
+  });
+});

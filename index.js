@@ -1,23 +1,23 @@
 /*jshint esnext:true*/
 
-var debug = require('debug')('niffy');
-var Nightmare = require('nightmare');
-var mkdirp = require('mkdirp');
-var fs = require('fs');
-var thunkify = require('thunkify');
-var defaults = require('defaults');
-var sprintf = require('sprintf-js').sprintf;
-var diff = require('./lib/diff');
-var path = require('path');
+const debug = require('debug')('niffy');
+const Nightmare = require('nightmare');
+const mkdirp = require('mkdirp');
+const fs = require('fs');
+const thunkify = require('thunkify');
+const defaults = require('defaults');
+const sprintf = require('sprintf-js').sprintf;
+const diff = require('./lib/diff');
+const path = require('path');
 
 function* timeout(ms) {
-  var to = function (ms, cb) {
+  const to = function (ms, cb) {
     setTimeout(function () { cb(null); }, ms);
   };
   yield thunkify(to)(ms);
 }
 
-class Niffy
+class NiffyTestRunner
 {
   /**
    * capture a specific url after optionally taking some actions.
@@ -30,7 +30,6 @@ class Niffy
     /**
      * Capture the screenshots.
      */
-
     yield this.captureHost('base', this.basehost, pngPath, fn);
     yield this.captureHost('test', this.testhost, pngPath, fn);
 
@@ -39,10 +38,10 @@ class Niffy
      */
 
     this.startProfile('diff');
-    var pathA = this.imgfilepath('base', pngPath);
-    var pathB = this.imgfilepath('test', pngPath);
-    var pathDiff = this.imgfilepath('diff', pngPath);
-    var result = yield diff(pathA, pathB, pathDiff);
+    const pathA = this.imgfilepath('base', pngPath);
+    const pathB = this.imgfilepath('test', pngPath);
+    const pathDiff = this.imgfilepath('diff', pngPath);
+    const result = yield diff(pathA, pathB, pathDiff);
     this.stopProfile('diff');
 
     /**
@@ -83,8 +82,16 @@ class Niffy
    * @param {String} test
    * @param {Object} options
    */
-  constructor(base, test, options) {
-    options = defaults(options, { show: false, width: 1400, height: 1000, threshold: .2, pngPath: path.resolve(process.cwd(), './niffy') });
+  constructor(base, test, options, size = 'default') {
+    options = defaults(options, {
+      show: false,
+      width: 1400,
+      height: 1000,
+      threshold: 0.2,
+      pngPath: path.resolve(process.cwd(), './niffy')
+    });
+
+    this.size = size;
     this.nightmare = new Nightmare(options);
     this.pngPath = options.pngPath;
     this.basehost = base;
@@ -145,15 +152,15 @@ class Niffy
    * Utils
    */
   imgfilepath(name, pngPath) {
-    var filepath = this.pngPath + pngPath;
-    if (filepath.slice(-1) !== '/') filepath += '/';
+    if (pngPath.slice(-1) !== '/') pngPath += '/';
+    let filepath = `${this.pngPath}/${this.size}${pngPath}`;
     if (filepath[0] === '.') {
       filepath = path.join( __dirname, filepath.slice(1));
     }
     mkdirp(filepath, function (err) {
       if (err) console.error(err.toString());
     });
-    return (filepath + name + '.png');
+    return `${filepath}${name}.png`;
   }
 
 
@@ -163,7 +170,7 @@ class Niffy
    * @param {String} name
    */
   startProfile(name) {
-    var start = new Date().getTime();
+    const start = new Date().getTime();
     this.starts[name] = start;
   }
 
@@ -174,7 +181,7 @@ class Niffy
    * @param {String} name
    */
   stopProfile(name) {
-    var end = new Date().getTime();
+    const end = new Date().getTime();
     if (!this.starts[name]) return;
     if (this.profiles[name]) this.profiles[name] += (end - this.starts[name]);
     else this.profiles[name] = (end - this.starts[name]);
@@ -188,14 +195,63 @@ class Niffy
   * @param {Function} fn
   */
   * test(url, fn) {
-    console.log(url)
-    var diff = yield this.capture(url, fn);
-    var pct = '' + Math.floor(diff.percentage * 10000) / 10000 + '%';
-    var failMessage = sprintf('%s different, open %s', pct, diff.diffFilepath);
-    var absolutePct = Math.abs(diff.percentage);
+    const diff = yield this.capture(url, fn);
+    const pct = '' + Math.floor(diff.percentage * 10000) / 10000 + '%';
+    const failMessage = sprintf('%s different, open %s', pct, diff.diffFilepath);
+    const absolutePct = Math.abs(diff.percentage);
     if (diff.percentage > this.errorThreshold) {
       throw new Error(failMessage);
     }
+  }
+}
+
+
+class Niffy {
+  /**
+   * Initialize Niffy cluster
+   *
+   * @param {String} base
+   * @param {String} test
+   * @param {Object} options
+   */
+  constructor(base, test, options, fn) {
+    if (!options.targets)
+    {
+      console.warn('Testing from the niffy object is DEPRECATED and will be removed with version 1.0.0. Please define targets');
+
+      return new NiffyTestRunner(base, test, options);
+    }
+
+    const targets = Object.assign({}, options.targets);
+    delete options.targets;
+
+    this.testers = Object.keys(targets).map(label => {
+      const res = targets[label];
+      const width = res[0];
+      const height = res[1];
+
+      const niffy = new NiffyTestRunner(
+        base,
+        test,
+        Object.assign({
+          width,
+          height
+        }, options),
+        label
+      );
+
+      if ( !fn ) {
+        throw new Error('You must supply a test function');
+      }
+
+      fn( niffy, {
+        width,
+        height,
+        label
+      } );
+
+      return niffy;
+    });
   }
 }
 
