@@ -3,9 +3,6 @@
 <strong>Perceptual diffing suite</strong>
 <br>
 built on <a href="https://github.com/segmentio/nightmare">Nightmare</a> by <a href="https://segment.com">Segment</a>
-<br><br>
-<a href="https://circleci.com/gh/segmentio/niffy"><img src="https://circleci.com/gh/segmentio/niffy.svg?style=shield" /></a>
-<a href="https://npmjs.com/package/niffy"><img src="https://img.shields.io/npm/v/niffy.svg" /></a>
 </p>
 
 ## Getting Started
@@ -72,7 +69,7 @@ new Niffy(
 );
 ```
 
-(see [`test/index.js`](https://github.com/segmentio/niffy/blob/master/test/index.js) for a full example)
+(see [`test/index.js`](https://github.com/mousemke/niffy/blob/master/test/index.js) for a full example)
 
 ### .test(url[, fn])
 This method instructs niffy to go to a `url` (and optionally take additional actions like clicking, typing or checkboxing via the `fn` argument), and test `basehost` vs. `testhost` screenshots for pixel differences, and output the diff-highlight image. Typically you'll use `.test(url, fn)` in the body of a mocha test, like this:
