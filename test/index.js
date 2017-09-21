@@ -19,7 +19,7 @@ describe('Google', function () {
 
     describe(`${label} : ${width} x ${height}`, () => {
 
-      before(function* () {);
+      before(function* () {;
         yield niffy.wait(100); // example
       });
 
