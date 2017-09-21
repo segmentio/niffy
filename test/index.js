@@ -18,6 +18,11 @@ describe('Google', function () {
     const { label, width, height } = size;
 
     describe(`${label} : ${width} x ${height}`, () => {
+
+      before(function* () {);
+        yield niffy.wait(100); // example
+      });
+
       it('Homepage', function* () {
         yield niffy.test('/');
       })

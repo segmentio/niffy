@@ -203,6 +203,15 @@ class NiffyTestRunner
       throw new Error(failMessage);
     }
   }
+
+  /**
+  * exposes the nightmare wait fubction
+  *
+  * @param {String} target selector of ms
+  */
+  * wait( target ){
+    yield this.nightmare.wait( target );
+  }
 }
 
 
