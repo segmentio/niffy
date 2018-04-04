@@ -134,7 +134,16 @@ Niffy.prototype.captureHost = function* (name, host, path, fn) {
   this.stopProfile('goto');
 
   this.startProfile('capture');
-  yield this.nightmare.wait(1000).screenshot(imgfilepath(name, path));
+
+  this.nightmare.options.height = yield this.nightmare.evaluate(function() {
+    return document.body.scrollHeight;
+  });
+
+  yield this.nightmare
+    .viewport(this.nightmare.options.width, this.nightmare.options.height)
+    .wait(1000)
+    .screenshot(imgfilepath(name, path));
+
   this.stopProfile('capture');
   yield timeout(250);
 };
