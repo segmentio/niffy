@@ -142,7 +142,10 @@ Niffy.prototype.captureHost = function* (name, host, path, fn) {
   yield this.nightmare
     .viewport(this.nightmare.options.width, this.nightmare.options.height)
     .wait(1000)
-    .screenshot(imgfilepath(name, path));
+    .screenshot(imgfilepath(name, path))
+    // reset viewport to a smaller one, otherwise the next page will have
+    // a wrong calulcation of document.body.scrollHeight
+    .viewport(this.nightmare.options.width, 600);
 
   this.stopProfile('capture');
   yield timeout(250);
