@@ -1,13 +1,13 @@
 /*jshint esnext:true*/
 
-var debug = require('debug')('niffy');
-var Nightmare = require('nightmare');
-var mkdirp = require('mkdirp');
-var fs = require('fs');
-var thunkify = require('thunkify');
-var defaults = require('defaults');
-var sprintf = require('sprintf-js').sprintf;
-var diff = require('./lib/diff');
+var debug = require("debug")("niffy");
+var Nightmare = require("nightmare");
+var mkdirp = require("mkdirp");
+var fs = require("fs");
+var thunkify = require("thunkify");
+var defaults = require("defaults");
+var sprintf = require("sprintf-js").sprintf;
+var diff = require("./lib/diff");
 
 /**
  * Export `Niffy`
@@ -25,13 +25,13 @@ module.exports = Niffy;
 
 function Niffy(base, test, options) {
   if (!(this instanceof Niffy)) return new Niffy(base, test, options);
-  options = defaults(options, { show: false, width: 1400, height: 1000, threshold: .2 });
-  this.nightmare = new Nightmare(options);
+  this.options = defaults(options, { show: false, dirname: "test", width: 1400, height: 1000, threshold: 0.2 });
+  this.nightmare = new Nightmare(this.options);
   this.basehost = base;
   this.testhost = test;
   this.starts = {};
   this.profiles = {};
-  this.errorThreshold = options.threshold;
+  this.errorThreshold = this.options.threshold;
 }
 
 /**
@@ -41,10 +41,10 @@ function Niffy(base, test, options) {
  * @param {Function} fn
  */
 
-Niffy.prototype.test = function* (path, fn) {
-  var diff = yield this.capture(path, fn);
-  var pct = '' + Math.floor(diff.percentage * 10000) / 10000 + '%';
-  var failMessage = sprintf('%s different, open %s', pct, diff.diffFilepath);
+Niffy.prototype.test = function*(path, fn) {
+  var diff = yield this.capture(path, "/" + this.options.dirname + "/" + path, fn);
+  var pct = "" + Math.floor(diff.percentage * 10000) / 10000 + "%";
+  var failMessage = sprintf("%s different, open %s", pct, diff.diffFilepath);
   var absolutePct = Math.abs(diff.percentage);
   if (diff.percentage > this.errorThreshold) {
     throw new Error(failMessage);
@@ -58,11 +58,11 @@ Niffy.prototype.test = function* (path, fn) {
  * @param {Function} fn
  */
 
-Niffy.prototype.goto = function* (path, fn) {
-  this.startProfile('goto');
+Niffy.prototype.goto = function*(path, fn) {
+  this.startProfile("goto");
   yield this.gotoHost(this.basehost, path, fn);
   yield this.gotoHost(this.testhost, path, fn);
-  this.stopProfile('goto');
+  this.stopProfile("goto");
 };
 
 /**
@@ -73,7 +73,7 @@ Niffy.prototype.goto = function* (path, fn) {
  * @param {Function} fn
  */
 
-Niffy.prototype.gotoHost = function* (host, path, fn) {
+Niffy.prototype.gotoHost = function*(host, path, fn) {
   yield this.nightmare.goto(host + path);
   if (fn) {
     yield timeout(1000);
@@ -89,32 +89,31 @@ Niffy.prototype.gotoHost = function* (host, path, fn) {
  * @param {Function} fn
  */
 
-Niffy.prototype.capture = function* (path, fn) {
-
+Niffy.prototype.capture = function*(path, dir, fn) {
   /**
    * Capture the screenshots.
    */
 
-  yield this.captureHost('base', this.basehost, path, fn);
-  yield this.captureHost('test', this.testhost, path, fn);
+  yield this.captureHost("base", this.basehost, path, dir, fn);
+  yield this.captureHost("test", this.testhost, path, dir, fn);
 
   /**
    * Run the diff calculation.
    */
+  this.startProfile("diff");
 
-  this.startProfile('diff');
-  var pathA = imgfilepath('base', path);
-  var pathB = imgfilepath('test', path);
-  var pathDiff = imgfilepath('diff', path);
+  var pathA = imgfilepath("base", dir);
+  var pathB = imgfilepath("test", dir);
+  var pathDiff = imgfilepath("diff", dir);
   var result = yield diff(pathA, pathB, pathDiff);
-  this.stopProfile('diff');
+  this.stopProfile("diff");
 
   /**
    * Prep the results.
    */
 
   result.percentage = result.differences / result.total * 100;
-  result.diffFilepath = imgfilepath('diff', path);
+  result.diffFilepath = imgfilepath("diff", dir);
   return result;
 };
 
@@ -127,13 +126,12 @@ Niffy.prototype.capture = function* (path, fn) {
  * @param {Function} fn
  */
 
-Niffy.prototype.captureHost = function* (name, host, path, fn) {
-
-  this.startProfile('goto');
+Niffy.prototype.captureHost = function*(name, host, path, dir, fn) {
+  this.startProfile("goto");
   yield this.gotoHost(host, path, fn);
-  this.stopProfile('goto');
+  this.stopProfile("goto");
 
-  this.startProfile('capture');
+  this.startProfile("capture");
 
   this.nightmare.options.height = yield this.nightmare.evaluate(function() {
     return document.body.scrollHeight;
@@ -142,12 +140,12 @@ Niffy.prototype.captureHost = function* (name, host, path, fn) {
   yield this.nightmare
     .viewport(this.nightmare.options.width, this.nightmare.options.height)
     .wait(1000)
-    .screenshot(imgfilepath(name, path))
+    .screenshot(imgfilepath(name, dir))
     // reset viewport to a smaller one, otherwise the next page will have
     // a wrong calulcation of document.body.scrollHeight
     .viewport(this.nightmare.options.width, 600);
 
-  this.stopProfile('capture');
+  this.stopProfile("capture");
   yield timeout(250);
 };
 
@@ -155,15 +153,10 @@ Niffy.prototype.captureHost = function* (name, host, path, fn) {
  * End the capture session.
  */
 
-Niffy.prototype.end = function* () {
+Niffy.prototype.end = function*() {
   yield this.nightmare.end();
 
-  debug(
-    'profile\n\tgoto %s\n\tcapture %s\n\tdiff %s',
-    this.profiles.goto,
-    this.profiles.capture,
-    this.profiles.diff
-  );
+  debug("profile\n\tgoto %s\n\tcapture %s\n\tdiff %s", this.profiles.goto, this.profiles.capture, this.profiles.diff);
 };
 
 /**
@@ -172,7 +165,7 @@ Niffy.prototype.end = function* () {
  * @param {String} name
  */
 
-Niffy.prototype.startProfile = function (name) {
+Niffy.prototype.startProfile = function(name) {
   var start = new Date().getTime();
   this.starts[name] = start;
 };
@@ -183,11 +176,11 @@ Niffy.prototype.startProfile = function (name) {
  * @param {String} name
  */
 
-Niffy.prototype.stopProfile = function (name) {
+Niffy.prototype.stopProfile = function(name) {
   var end = new Date().getTime();
   if (!this.starts[name]) return;
-  if (this.profiles[name]) this.profiles[name] += (end - this.starts[name]);
-  else this.profiles[name] = (end - this.starts[name]);
+  if (this.profiles[name]) this.profiles[name] += end - this.starts[name];
+  else this.profiles[name] = end - this.starts[name];
 };
 
 /**
@@ -195,15 +188,18 @@ Niffy.prototype.stopProfile = function (name) {
  */
 
 function imgfilepath(name, path) {
-  var filepath = '/tmp/niffy' + path;
-  if (filepath.slice(-1) !== '/') filepath += '/';
+  var filepath = "/tmp/niffy" + path;
+  if (filepath.slice(-1) !== "/") filepath += "/";
+
   mkdirp(filepath);
-  return (filepath + name + '.png');
+  return filepath + name + ".png";
 }
 
 function* timeout(ms) {
-  var to = function (ms, cb) {
-    setTimeout(function () { cb(null); }, ms);
+  var to = function(ms, cb) {
+    setTimeout(function() {
+      cb(null);
+    }, ms);
   };
   yield thunkify(to)(ms);
 }
