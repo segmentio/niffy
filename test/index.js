@@ -11,7 +11,11 @@ describe('Google', function () {
     niffy = new Niffy(
       'https://google.com',
       'https://google.co.jp',
-      { show: true }
+      {
+        // show has to be false to capture fullpage screenshots
+        // when show is true, diff will be made on the viewport only
+        show: false
+      }
     )
   })
 
